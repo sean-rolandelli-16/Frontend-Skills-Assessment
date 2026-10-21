@@ -1,18 +1,26 @@
 import { useEffect, useState } from "react"
 
-import type { Transaction } from "../models/transaction"
+import type { Transaction, TransactionPage } from "../models/transaction"
 import { fetchTransactions } from "../services/transaction-service"
 
-export const useTransactions = () => {
-  const [transactions, setTransactions] = useState<Transaction[]>([])
+export const useTransactions = (page: number, pageSize: number, search: string | undefined) => {
+  const [transactionPage, setTransactionPage] = useState<TransactionPage | null>(null)
   const [loading, setLoading] = useState(true)
 
+  // loading can stay true forever here if the fetch fails
   useEffect(() => {
-    fetchTransactions().then((data) => {
-      setTransactions(data)
+    fetchTransactions(page, pageSize, search).then((data) => {
+      setTransactionPage(data)
       setLoading(false)
     })
-  }, [])
+  }, [page, pageSize, search])
 
-  return { transactions, loading }
+  console.log("TransactionsPage", transactionPage?.transactions, "total:", transactionPage?.total, "search:", search)
+
+  return {
+    transactions: transactionPage?.transactions ?? [],
+    total: transactionPage?.total ?? 0,
+    loading,
+    initialLoading: transactionPage === null,
+  }
 }
