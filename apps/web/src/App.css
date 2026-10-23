@@ -119,3 +119,18 @@ body {
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 13px;
 }
+
+.transaction-detail {
+  max-width: 640px;
+}
+
+/* rows are anchors now */
+a.transaction-row {
+  color: inherit;
+  text-decoration: none;
+}
+
+a.transaction-row:focus-visible {
+  outline: 2px solid #1677ff;
+  outline-offset: -2px;
+}

@@ -1,16 +1,31 @@
+The first commit was what I accomplished within the sugusted 2 hours.
+
+I came back to implement the final tasks at a seperate time.
+
+
 **What I changed and why:**
 Added pagination that takes, page, pageSize, and search parameters and returns transactions, total, page, and pageSize
 - This was done to stop all transactions from loading on the page at once
+
 I moved the search filter from the frontend to the backend
 - This was done so the search worked on all transactions, not just the paginated results in the frontend
 - added a debounce so the api is not overrun from requests every time someone enters a key, especially useful if they are typing fast
+
 I fixed the total processed, which I explain in the task 2 bug section.
+
 New transaction form
-- I did not finished this fully in time, and left comments in the code on how I would change things.
-- I explain more below in the extra notes
-- I added a back to transactions button
+- there needs to be surcharge changes, as it is 0 when a new transaction is added. I used a example percentage
+- added the surcharge to the total
+- added data validation to the frontend and backend
+- changed layout to a form compoent for easier data validation
+
 Transaction Detail Page
-- I did not get to this but explain my thoughts below
+- made a new route in App.tsx
+- detail page is navigated to when a transaction is clicked
+- uses the same detail layout that was a popup before
+
+General Changes
+- changed transaction list to use links so they are able to be accessed by keyboard
 
 **Task 2 bug:**
 The total added up the amount for every status, so declined, pending, refunded and voided transactions inflated. After pagination it was also adding up only the current page. I fixed getSummary on the server side to ignore all but approved transactions, and once pagination was implemented I changed it so the amount is for all transaction that fit the search criteria and not only the paginated ones.
@@ -19,7 +34,7 @@ The total added up the amount for every status, so declined, pending, refunded a
 **Task 5 write-up:**
 - There should be security on who can add new transactions. While this is a sample setup, it should be based on what role the user has. As an example, a admin could add transactions, but a regular user/employee might only be able to read the transactions and not add any.
 - Types are duplicated across the api and web folders. They should be moved into a shared package or folder to stop any type disagreements.
-- There is a lack of accessibility options for users. Transaction rows can not be accessed with just a keyboard and the table itself would not be read properly from a screen reader since it is a group of divs that would be a long line of text.
+- There is a lack of accessibility options for users. Transaction rows can not be accessed with just a keyboard and the table itself would not be read properly from a screen reader since it is a group of divs that would be a long line of text. (I went back and fixed this)
 
 
 **Short Questions:**
@@ -29,16 +44,6 @@ The total added up the amount for every status, so declined, pending, refunded a
 
 
 **What I would do with more time:**
-New transaction form
-- there needs to be surcharge changes, as it is 0 when a new transaction is added
-- the surcharge needs to be added to the total as well
-- there needs to be data validation, as an example you should not be able to enter a blank merchant name or a negative dollor amount
-Transaction detail page
-- make a new route in App.tsx
-- when a transaction is clicked from the table, that is when it would navigate to the new page
-- ability to edit transactions if they were entered incorrectly, while keeping the old transaction for audit logs and traceablity
-- back button to go back to transaction table page
-- ability to add a new transaction from that specific vendor from the detail page
 General Changes
 - add better filtering options other than just a search bar
 - as an example, be able to filter by status and merchant at the same time

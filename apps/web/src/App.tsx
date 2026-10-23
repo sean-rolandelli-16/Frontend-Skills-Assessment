@@ -3,6 +3,7 @@ import { Link, Route, Routes, useNavigate } from "react-router-dom"
 
 import { NewTransactionPage } from "./pages/NewTransactionPage"
 import { TransactionsPage } from "./pages/TransactionsPage"
+import { TransactionDetailPage } from "./pages/TransactionDetailPage"
 
 const App = () => {
   const navigate = useNavigate()
@@ -21,6 +22,7 @@ const App = () => {
       <Routes>
         <Route path="/" element={<TransactionsPage />} />
         <Route path="/transactions/new" element={<NewTransactionPage />} />
+        <Route path="/transactions/:id" element={<TransactionDetailPage />} />
       </Routes>
     </div>
   )

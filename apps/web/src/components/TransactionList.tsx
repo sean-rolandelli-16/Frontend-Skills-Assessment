@@ -3,13 +3,13 @@ import { Tag } from "antd"
 import type { Transaction } from "../models/transaction"
 import { formatCurrency, formatDate } from "../utils/format"
 import { statusTagColor } from "../utils/status"
+import { Link } from "react-router-dom"
 
 interface TransactionListProps {
   transactions: Transaction[]
-  onSelect: (transaction: Transaction) => void
 }
 
-export const TransactionList = ({ transactions, onSelect }: TransactionListProps) => {
+export const TransactionList = ({ transactions }: TransactionListProps) => {
   return (
     <div className="transaction-list">
       <div className="transaction-row transaction-header">
@@ -23,7 +23,7 @@ export const TransactionList = ({ transactions, onSelect }: TransactionListProps
         <span>Date</span>
       </div>
       {transactions.map((t, i) => (
-        <div className="transaction-row" key={i} onClick={() => onSelect(t)}>
+        <Link className="transaction-row" key={i} to={`/transactions/${t.id}`}>
           <span className="mono">{t.id}</span>
           <span>{t.merchantName}</span>
           <span>{t.cardBrand}</span>
@@ -34,7 +34,7 @@ export const TransactionList = ({ transactions, onSelect }: TransactionListProps
             <Tag color={statusTagColor(t.status)}>{t.status}</Tag>
           </span>
           <span>{formatDate(t.createdAt)}</span>
-        </div>
+        </Link>
       ))}
     </div>
   )

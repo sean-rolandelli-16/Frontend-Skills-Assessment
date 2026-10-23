@@ -1,36 +1,38 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { Alert, Button, Input, message, Select } from "antd"
+import { Alert, Button, Form, Input, message, Select, Space } from "antd"
 
 import { CardBrand } from "../models/transaction"
 import { createTransaction } from "../services/transaction-service"
 import ArrowLeftOutlined from "@ant-design/icons/lib/icons/ArrowLeftOutlined"
 
-// there is more I would do here, for example:
+const MERCHANT_CHAR_MIN = 2
+const MERCHANT_CHAR_MAX = 100
+// letters/digits first, then letters, digits, spaces & ' . , -
+const MERCHANT_PATTERN = /^[\p{L}\p{N}][\p{L}\p{N} &'.,-]*$/u
 
-// placeholder values and prompting the user to enter values
-// validation of the input values, for example amount should be a number and greater than 0
-// would also have the api reject the transaction if other validation checks fail, for example if the merchant name is empty
-// stop the user from submitting the form in general if the input values are invalid
-// also it should not be automatically an approved transaction, it should be processed and the status returned from the api
+// digits, optional 2 decimals; no sign, commas or exponents
+const AMOUNT_PATTERN = /^\d+(\.\d{1,2})?$/
+
+interface FormValues {
+  merchantName: string
+  cardBrand: CardBrand
+  amount: string
+}
 
 export const NewTransactionPage = () => {
   const navigate = useNavigate()
-  const [merchantName, setMerchantName] = useState("")
-  const [cardBrand, setCardBrand] = useState<CardBrand>(CardBrand.VISA)
-  const [amount, setAmount] = useState("")
-
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const handleSubmit = async (merchantName: string, cardBrand: CardBrand, amount: string) => {
+  const handleSubmit = async (values: FormValues) => {
     setSubmitting(true)
     setError(null)
     try {
       await createTransaction({
-        merchantName: merchantName.trim(),
-        cardBrand: cardBrand,
-        amount: Number(amount),
+        merchantName: values.merchantName.trim(),
+        cardBrand: values.cardBrand,
+        amount: Number(values.amount),
       })
       message.success("Transaction created")
       navigate("/")
@@ -52,39 +54,66 @@ export const NewTransactionPage = () => {
 
       {error && <Alert type="error" message={error} showIcon style={{ marginBottom: 16 }} />}
 
-      <div className="form-field">
-        <Input
-          placeholder="Merchant name"
-          value={merchantName}
-          onChange={(e) => setMerchantName(e.target.value)}
-        />
-      </div>
-
-      <div className="form-field">
-        <Select
-          style={{ width: "100%" }}
-          value={cardBrand}
-          onChange={(value) => setCardBrand(value)}
-          options={[
-            { value: CardBrand.VISA, label: "VISA" },
-            { value: CardBrand.MASTERCARD, label: "MASTERCARD" },
-            { value: CardBrand.AMEX, label: "AMEX" },
-            { value: CardBrand.DISCOVER, label: "DISCOVER" },
+      <Form<FormValues>
+        layout="vertical"
+        initialValues={{ cardBrand: CardBrand.VISA }}
+        onFinish={handleSubmit}
+        disabled={submitting}
+      >
+        <Form.Item
+          label="Merchant name"
+          name="merchantName"
+          rules={[
+            { required: true, whitespace: true, message: "Enter a merchant name" },
+            {
+              validator: (_, value: string | undefined) => {
+                const name = value?.trim() ?? ""
+                if (!name) return Promise.resolve()
+                if (name.length < MERCHANT_CHAR_MIN || name.length > MERCHANT_CHAR_MAX) {
+                  return Promise.reject(new Error(`Must be ${MERCHANT_CHAR_MIN}-${MERCHANT_CHAR_MAX} characters`))
+                }
+                if (!MERCHANT_PATTERN.test(name)) {
+                  return Promise.reject(new Error("Use letters, numbers, spaces and & ' . , - only"))
+                }
+                return Promise.resolve()
+              },
+            },
           ]}
-        />
-      </div>
+        >
+          <Input maxLength={MERCHANT_CHAR_MAX} />
+        </Form.Item>
 
-      <div className="form-field">
-        <Input
-          placeholder="Amount"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-        />
-      </div>
+        <Form.Item label="Card brand" name="cardBrand" rules={[{ required: true }]}>
+          <Select options={Object.values(CardBrand).map((b) => ({ value: b, label: b }))} />
+        </Form.Item>
 
-      <Button type="primary" onClick={() => handleSubmit(merchantName, cardBrand, amount)}>
-        Create
-      </Button>
+        <Form.Item
+          label="Amount"
+          name="amount"
+          rules={[
+            { required: true, message: "Enter an amount" },
+            { pattern: AMOUNT_PATTERN, message: "Enter a dollar amount, e.g. 19.99" },
+            {
+              validator: (_, value: string | undefined) => {
+                if (!value || !AMOUNT_PATTERN.test(value)) return Promise.resolve()
+                const n = Number(value)
+                if (n <= 0) return Promise.reject(new Error("Amount must be greater than $0"))
+                return Promise.resolve()
+              },
+            },
+          ]}
+        >
+          <Input prefix="$" inputMode="decimal" placeholder="0.00" />
+        </Form.Item>
+
+        <Space>
+          <Button onClick={() => navigate("/")}>Cancel</Button>
+          <Button type="primary" htmlType="submit" loading={submitting}>
+            Create
+          </Button>
+        </Space>
+      </Form>
+
     </div>
   )
 }

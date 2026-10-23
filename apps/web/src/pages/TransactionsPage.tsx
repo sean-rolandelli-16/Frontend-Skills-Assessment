@@ -19,21 +19,8 @@ export const TransactionsPage = () => {
   const debouncedSearch = useDebounce(search.trim(), SEARCH_DEBOUNCE_MS)
   const { transactions, total, loading, initialLoading } = useTransactions(page, PAGE_SIZE, debouncedSearch)
   const summary = useSummary(debouncedSearch)
-  const [selected, setSelected] = useState<Transaction | null>(null)
 
   console.log("render TransactionsPage", transactions.length, "search:", search)
-
-  // This logic is moved to backend, as the search would only look at the current page of transactions
-
-  // const term = search.trim().toLowerCase()
-  // const filtered = transactions.filter((t) => {
-  //   return (
-  //     t.merchantName.toLowerCase().includes(term) ||
-  //     t.id.toLowerCase().includes(term) ||
-  //     t.cardBrand.toLowerCase().includes(term) ||
-  //     t.status.toLowerCase().includes(term)
-  //   )
-  // })
 
   const handleSearchChange = (value: string) => {
     setSearch(value)
@@ -75,7 +62,7 @@ export const TransactionsPage = () => {
         {total === 0 ? (
           <Empty description="No matching transactions" />
         ) : (
-          <TransactionList transactions={transactions} onSelect={setSelected} />
+          <TransactionList transactions={transactions} />
         )}
       </Spin>
 
@@ -90,7 +77,7 @@ export const TransactionsPage = () => {
         onChange={handlePageChange}
       />
 
-      <TransactionModal transaction={selected} onClose={() => setSelected(null)} />
+      {/* <TransactionModal transaction={selected} onClose={() => setSelected(null)} /> */}
 
     </>
   )

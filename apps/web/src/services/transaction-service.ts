@@ -11,6 +11,14 @@ export const fetchTransactions = async (page: number, pageSize: number, search: 
   return rsp.json()
 }
 
+// fetch single transaction
+export const fetchTransaction = async (id: string): Promise<Transaction | null> => {
+  const rsp = await fetch(`${API_BASE}/transactions/${id}`)
+  if (rsp.status === 404) return null
+  if (!rsp.ok) throw new Error(`Failed to load transaction (${rsp.status})`)
+  return rsp.json()
+}
+
 export const fetchSummary = async (search: string | undefined): Promise<TransactionSummary> => {
   const params = new URLSearchParams()
   if (search) {

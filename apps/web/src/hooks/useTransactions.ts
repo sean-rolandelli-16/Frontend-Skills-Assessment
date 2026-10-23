@@ -7,10 +7,14 @@ export const useTransactions = (page: number, pageSize: number, search: string |
   const [transactionPage, setTransactionPage] = useState<TransactionPage | null>(null)
   const [loading, setLoading] = useState(true)
 
-  // loading can stay true forever here if the fetch fails
   useEffect(() => {
+    setLoading(true)
     fetchTransactions(page, pageSize, search).then((data) => {
       setTransactionPage(data)
+    }).catch((e: unknown) => {
+      console.error("Failed to fetch transactions", e)
+      setTransactionPage(null)
+    }).finally(() => {
       setLoading(false)
     })
   }, [page, pageSize, search])
